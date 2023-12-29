@@ -7,7 +7,7 @@ A2dd::A2dd(int x, int y) {
 }
 
 int A2dd::getSum() {
-  this->printDummy();
+  printDummy();
   return gx + gy;
 }
 

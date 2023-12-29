@@ -8,7 +8,7 @@ class A2dd {
 public:
   A2dd(int x, int y);
   int getSum();
-  void printDummy();
+  static void printDummy();
 };
 
 #endif
