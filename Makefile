@@ -1,8 +1,10 @@
+all: format build debug
+
 debug:
-	build
 	gdb -ex=r ./hello.out
 build:
-	format
-	g++ -g -std=c++17 -Wall ./scr/hello.cpp -o hello.out
+	g++ -g -c ./src/hello_b.cpp
+	g++ -g -std=c++17 -Wall ./src/* -o hello.out
 format:
-    git diff -U0 HEAD^ | clang-format-diff.py -i -p1
+	python3 clang-format-diff.py -i -p1
+
