@@ -1,5 +1,7 @@
 all: format build debug
-
+run:
+	g++ -std=c++17 -Wall ./src/* -o hello.out
+	./hello.out
 debug:
 	gdb -ex=r ./hello.out
 build:

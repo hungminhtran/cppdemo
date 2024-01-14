@@ -15,10 +15,9 @@ public:
   interval_map(V const &val, K sdf) : m_valBegin(val) {}
 
   void toString() {
-    std::cout << std::endl << std::endl << std::endl;
     for (auto it = m_map.begin(); it != m_map.end(); ++it) {
-      std::cout << "interval_map key _" << it->first << "_val_" << it->second
-                << std::endl;
+      std::cout << "interval_map " << m_map.size() << " key _" << it->first
+                << "_val_" << it->second << std::endl;
     }
     std::cout << std::endl << std::endl << std::endl;
   }
@@ -86,6 +85,7 @@ public:
     while (insertedElement > 0 && upperBound != m_map.begin() &&
            std::prev(upperBound) != m_map.begin()) {
       upperBound = std::prev(upperBound, insertedElement);
+      insertedElement--;
     }
 
     auto nextLowerBound = lowerBound;
@@ -118,16 +118,33 @@ int main() {
   std::cout << std::endl << std::endl << std::endl << std::endl << std::endl;
   interval_map<int, char> *map = new interval_map{'h', 111};
   map->assign(-5, 0, 'a');
-  map->toString();
+
   map->assign(10, 15, 'd');
-  map->toString();
+
   map->assign(0, 5, 'b');
-  map->toString();
+
   map->assign(15, 20, 'e');
-  map->toString();
+
   map->assign(5, 10, 'c');
+
+  map->assign(-2, 1, 'i');
   map->toString();
-  map->assign(-10, -5, 'A');
-  map->toString();
+
+  // /* initialize random seed: */
+  // srand(time(NULL));
+
+  // for (int i = 0; i < 10000; i++) {
+  //   int a1 = rand() % 10 + 1;
+  //   int a2 = rand() % 10 + 1;
+  //   int b1 = rand() % 10 + 1;
+  //   int b2 = rand() % 10 + 1;
+
+  //   char c = rand() % 10 + 97;
+  //   std::cout << "insert begin " << (a1 - a2) << " end " << (b1 - b2)
+  //             << " char " << c << std::endl;
+  //   map->assign(a1 - a2, b1 - b2, c);
+  //   map->toString();
+  // }
+  // map->toString();
   return 0;
 }
