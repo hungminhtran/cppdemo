@@ -12,27 +12,15 @@ public:
   // constructor associates whole range of K with val
   interval_map(V const &val) : m_valBegin(val) {}
 
+  interval_map(V const &val, K sdf) : m_valBegin(val) {}
+
   void toString() {
     std::cout << std::endl << std::endl << std::endl;
-    for (auto it = m_map.begin(); it != m_map.cend(); ++it) {
+    for (auto it = m_map.begin(); it != m_map.end(); ++it) {
       std::cout << "interval_map key _" << it->first << "_val_" << it->second
                 << std::endl;
     }
     std::cout << std::endl << std::endl << std::endl;
-  }
-
-  bool isKeyEqual(K key1, K key2) {
-    if (!(key1 < key2) && !(key2 < key1)) {
-      return true;
-    }
-    return false;
-  }
-
-  K getMinKey(K key1, K key2) {
-    if (key1 < key2) {
-      return key1;
-    }
-    return key2;
   }
 
   // Assign value val to interval [keyBegin, keyEnd).
@@ -49,54 +37,65 @@ public:
 
     if (m_map.size() == 0) {
       m_map.insert(std::pair{keyBegin, val});
-
       m_map.insert(std::pair{keyEnd, m_valBegin});
+      return;
     }
 
     auto upperBound = m_map.upper_bound(keyEnd);
 
-    if (upperBound == m_map.cend()) {
+    if (upperBound == m_map.end()) {
+      upperBound = std::prev(upperBound);
       if (upperBound->first < keyEnd) {
-        m_map.insert(m_map.cend(), std::pair{keyEnd, upperBound->second});
-        m_map.erase(m_map.cend());
-        upperBound = m_map.cend();
+        // this->toString();
+        m_map.insert(std::prev(m_map.end()),
+                     std::pair{keyEnd, upperBound->second});
+        // this->toString();
+        m_map.erase(std::prev(std::prev(m_map.end())));
+        // this->toString();
+        upperBound = std::prev(m_map.end());
       }
     }
 
-    auto lowerBound = upperBound;
     auto nearestUpperBoundVal = m_valBegin;
-    if (m_map.size() != 1) {
-      nearestUpperBoundVal = (upperBound - 1)->second;
+    if (m_map.size() != 1 && upperBound != m_map.begin() &&
+        std::prev(upperBound) != m_map.begin()) {
+      nearestUpperBoundVal = std::prev(upperBound)->second;
     }
 
+    auto lowerBound = upperBound;
     while (true) {
-      if (lowerBound == m_map.cbegin() || lowerBound->first < keyBegin) {
+      if (lowerBound == m_map.begin() || lowerBound->first < keyBegin) {
         break;
       }
       lowerBound--;
     }
 
-    if (m_map.size() == 1) {
-      if (upperBound->second == val) {
-        m_map.insert(upperBound, std::pair(keyBegin, val));
-        m_map.erase(m_map.cend());
-      }
-    } else {
-      int insertedElement = 0;
-      if (!(lowerBound->second == val)) {
-        m_map.insert(upperBound, std::pair{keyBegin, val});
-        insertedElement++;
-      }
+    int insertedElement = 0;
 
-      if (!(nearestUpperBoundVal == val)) {
-        m_map.insert(upperBound, std::pair{keyEnd, nearestUpperBoundVal});
-        insertedElement++;
-      }
-      if (lowerBound->first < keyBegin) {
-        m_map.erase(lowerBound + 1, upperBound - insertedElement);
-      } else {
-        m_map.erase(lowerBound, upperBound - insertedElement);
-      }
+    if (m_map.begin() != upperBound) {
+      m_map.insert(std::prev(upperBound), std::pair{keyBegin, val});
+      insertedElement++;
+    }
+
+    if (!(nearestUpperBoundVal == val) && upperBound != m_map.begin()) {
+      m_map.insert(std::prev(upperBound),
+                   std::pair{keyEnd, nearestUpperBoundVal});
+      insertedElement++;
+    }
+
+    while (insertedElement > 0 && upperBound != m_map.begin() &&
+           std::prev(upperBound) != m_map.begin()) {
+      upperBound = std::prev(upperBound, insertedElement);
+    }
+
+    auto nextLowerBound = lowerBound;
+    if (nextLowerBound->first < keyBegin && lowerBound != m_map.begin()) {
+      nextLowerBound = std::next(nextLowerBound);
+    }
+
+    if (nextLowerBound != m_map.end() && upperBound != m_map.begin() &&
+        nextLowerBound->first < upperBound->first) {
+      m_map.erase(nextLowerBound, upperBound);
     }
   }
 
@@ -117,17 +116,18 @@ public:
 // the interval_map, for example using a map of int intervals to char.
 int main() {
   std::cout << std::endl << std::endl << std::endl << std::endl << std::endl;
-  interval_map<int, char> map = interval_map('h');
-  map.assign(-5, 0, 'a');
-  map.toString();
-  map.assign(0, 5, 'b');
-  map.toString();
-  map.assign(10, 15, 'd');
-  map.toString();
-  map.assign(15, 20, 'e');
-  map.toString();
-  map.assign(5, 10, 'c');
-  map.toString();
-  map.assign(-10, -5, 'A');
+  interval_map<int, char> *map = new interval_map{'h', 111};
+  map->assign(-5, 0, 'a');
+  map->toString();
+  map->assign(10, 15, 'd');
+  map->toString();
+  map->assign(0, 5, 'b');
+  map->toString();
+  map->assign(15, 20, 'e');
+  map->toString();
+  map->assign(5, 10, 'c');
+  map->toString();
+  map->assign(-10, -5, 'A');
+  map->toString();
   return 0;
 }
