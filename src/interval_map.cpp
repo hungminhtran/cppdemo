@@ -89,7 +89,7 @@ public:
     }
 
     auto nextLowerBound = lowerBound;
-    if (nextLowerBound->first < keyBegin && lowerBound != m_map.begin()) {
+    if (nextLowerBound->first < keyBegin && nextLowerBound != m_map.end()) {
       nextLowerBound = std::next(nextLowerBound);
     }
 
