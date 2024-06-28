@@ -1,2 +1,5 @@
 hello.out
 *.o
+.scannerwork/
+bw-output/
+
