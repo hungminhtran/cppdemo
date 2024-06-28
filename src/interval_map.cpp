@@ -45,21 +45,20 @@ public:
     if (upperBound == m_map.end()) {
       upperBound = std::prev(upperBound);
       if (upperBound->first < keyEnd) {
-        // this->toString();
         m_map.insert(std::prev(m_map.end()),
                      std::pair{keyEnd, upperBound->second});
-        // this->toString();
         m_map.erase(std::prev(std::prev(m_map.end())));
-        // this->toString();
         upperBound = std::prev(m_map.end());
       }
     }
 
-    auto nearestUpperBoundVal = m_valBegin;
-    if (m_map.size() != 1 && upperBound != m_map.begin() &&
-        std::prev(upperBound) != m_map.begin()) {
-      nearestUpperBoundVal = std::prev(upperBound)->second;
+    auto nearestUpperBoundIt = upperBound;
+    while (m_map.size() != 1 && nearestUpperBoundIt != m_map.begin() &&
+           std::prev(nearestUpperBoundIt) != m_map.begin() &&
+           !(nearestUpperBoundIt->first < keyEnd)) {
+      nearestUpperBoundIt = std::prev(nearestUpperBoundIt);
     }
+    auto nearestUpperBoundItVal = nearestUpperBoundIt->second;
 
     auto lowerBound = upperBound;
     while (true) {
@@ -69,33 +68,32 @@ public:
       lowerBound--;
     }
 
-    int insertedElement = 0;
-
     if (m_map.begin() != upperBound) {
-      m_map.insert(std::prev(upperBound), std::pair{keyBegin, val});
-      insertedElement++;
-    }
-
-    if (!(nearestUpperBoundVal == val) && upperBound != m_map.begin()) {
-      m_map.insert(std::prev(upperBound),
-                   std::pair{keyEnd, nearestUpperBoundVal});
-      insertedElement++;
-    }
-
-    while (insertedElement > 0 && upperBound != m_map.begin() &&
-           std::prev(upperBound) != m_map.begin()) {
-      upperBound = std::prev(upperBound, insertedElement);
-      insertedElement--;
+      if (m_map.count(keyBegin) > 0) {
+        m_map[keyBegin] = val;
+      } else {
+        m_map.insert(std::prev(upperBound), std::pair{keyBegin, val});
+        upperBound = std::next(upperBound);
+      }
     }
 
     auto nextLowerBound = lowerBound;
     if (nextLowerBound->first < keyBegin && nextLowerBound != m_map.end()) {
       nextLowerBound = std::next(nextLowerBound);
     }
+    if (nextLowerBound != m_map.end()) {
+      nextLowerBound = std::next(nextLowerBound);
+    }
 
-    if (nextLowerBound != m_map.end() && upperBound != m_map.begin() &&
+    if (nextLowerBound != m_map.begin() && nextLowerBound != m_map.end() &&
+        upperBound != m_map.begin() && upperBound != m_map.end() &&
         nextLowerBound->first < upperBound->first) {
       m_map.erase(nextLowerBound, upperBound);
+    }
+
+    if (!(nearestUpperBoundItVal == val) && upperBound != m_map.begin()) {
+      m_map.insert(std::prev(upperBound),
+                   std::pair{keyEnd, nearestUpperBoundItVal});
     }
   }
 
@@ -124,16 +122,16 @@ int main() {
   map->assign(0, 5, 'b');
 
   map->assign(15, 20, 'e');
-
-  map->assign(5, 10, 'c');
-
-  map->assign(-2, 1, 'i');
   map->toString();
 
-  // /* initialize random seed: */
+  map->assign(5, 10, 'c');
+  map->toString();
+  // map->assign(-2, 1, 'i');
+  // map->toString();
+
   // srand(time(NULL));
 
-  // for (int i = 0; i < 10000; i++) {
+  // for (int i = 0; i < 50; i++) {
   //   int a1 = rand() % 10 + 1;
   //   int a2 = rand() % 10 + 1;
   //   int b1 = rand() % 10 + 1;
@@ -145,6 +143,5 @@ int main() {
   //   map->assign(a1 - a2, b1 - b2, c);
   //   map->toString();
   // }
-  // map->toString();
   return 0;
 }
