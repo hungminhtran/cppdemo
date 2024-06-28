@@ -1,78 +1,93 @@
 #include <iostream>
 #include <vector>
 
+#include <queue>
 using namespace std;
 
 class Solution {
-private:
-  const int MAX_DUPLICATION = 1;
-
 public:
-  int removeDuplicates(vector<int> &nums) {
-
-    if (nums.size() == 0) {
+  int jump(vector<int> &nums) {
+    if (nums.size() == 1) {
       return 0;
     }
-    vector<int> result = {nums.at(0)};
-    int count = 0;
-    ulong index = 1;
-    while (index < nums.size()) {
-      int num_e = nums.at(index);
+    queue<int> bfs_queue = {};
 
-      if (num_e != result.at(result.size() - 1)) {
-        count = 0;
-        index++;
-        result.push_back(num_e);
-      } else if (count < MAX_DUPLICATION) {
-        count++;
-        index++;
-        result.push_back(num_e);
+    vector<int> tracing(nums.size(), -1);
+    bfs_queue.push(0);
+    tracing[0] = -1;
+
+    while (!bfs_queue.empty()) {
+      int current_index = bfs_queue.front();
+      bfs_queue.pop();
+
+      int end_index = (int)nums.size() - 1;
+      if (current_index < end_index &&
+          nums.at(current_index) + current_index < end_index) {
+        end_index = nums.at(current_index) + current_index;
       } else {
-        count = 0;
-        while (index < nums.size() && num_e == nums.at(index)) {
-          index++;
+        tracing[end_index] = current_index;
+        break;
+      }
+
+      for (int next_index = current_index + 1; next_index <= end_index;
+           next_index++) {
+        if (tracing[next_index] >= 0) {
+          continue;
         }
+        bfs_queue.push(next_index);
+        tracing[next_index] = current_index;
       }
     }
-    nums.swap(result);
-    return (int)nums.size();
+
+    int min_jump = 0;
+    int index = (int)nums.size() - 1;
+    do {
+
+      if (index >= 0) {
+        index = tracing[index];
+
+        min_jump++;
+      } else {
+        break;
+      }
+    } while (index != 0);
+
+
+    return min_jump;
   }
 };
+
+template <typename T> void print_vector(vector<T> v) {
+  for (auto e : v) {
+    cout << e << " ";
+  }
+  cout << endl;
+}
 
 int main() {
   Solution solution;
   cout << "***** hello ******" << endl;
-  vector<vector<int>> nums = {
-      {1, 1, 1, 2, 2, 3},
-      {0, 0, 1, 1, 1, 1, 2, 3, 3},
-      {1, 2, 3, 4, 5},
-      {1, 1, 2, 2, 3, 3, 4, 4, 5, 5},
-      {1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5},
-      {},
-      {1},
-      {1, 1},
-      {1, 1, 1},
-      {1, 2},
-      {1, 1, 2},
-      {1, 1, 1, 2},
-      {1, 1, 1, 2, 2},
-      {1, 1, 1, 2, 2, 2},
-      {1, 2, 2},
-      {1, 2, 2, 2},
-      {1, 1, 2, 2, 2},
-      {1, 2, 3},
-      {1, 1, 2, 3},
-      {1, 1, 1, 2, 3},
-      {1, 1, 1, 2, 2, 3},
-      {1, 1, 1, 2, 2, 2, 3},
-      {1, 1, 1, 2, 2, 2, 3, 3},
-      {1, 1, 1, 2, 2, 2, 3, 3, 3},
-  };
-  for (vector<int> numx : nums) {
-    cout << solution.removeDuplicates(numx);
-    for (int a : numx)
-      cout << " " << a;
-    cout << "****** end *****" << endl;
+  vector<vector<int>> numx = {{2, 3, 1, 1, 4},
+                              {3, 2, 1, 0, 4},
+                              {0, 0, 0, 0, 0},
+                              {1},
+                              {0},
+                              {9},
+                              {0, 1},
+                              {1, 0},
+                              {9, 1, 0},
+                              {9, 0, 0, 0},
+                              {0, 1, 2},
+                              {1, 2},
+                              {1, 1, 1, 1, 1},
+                              {1, 2, 3, 4, 5},
+                              {5, 4, 3, 2, 1},
+                              {2, 1, 1, 1, 1}};
+  for (auto nums : numx) {
+    cout << solution.jump(nums) << "____";
+    print_vector(nums);
   }
+
+  cout << "****** end *****" << endl;
   return 0;
 }
